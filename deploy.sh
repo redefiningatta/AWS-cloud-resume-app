@@ -26,15 +26,15 @@ CERTIFICATE_REGION="us-east-1"  # ACM certificates for CloudFront must be in us-
 DOMAIN_NAME="resume.iamatta.com"
 
 # Check if 7z (7-Zip) is installed
-if ! command -v 7z &> /dev/null; then
-    log "7z command not found. Please install 7-Zip utility."
+if ! command -v zip &> /dev/null; then
+    log "zip command not found. Please install Zip utility."
     exit 1
 fi
 
 # Zip Lambda function code
 log "Zipping Lambda function..."
 cd lambda || handle_error $LINENO
-7z a -tzip $LAMBDA_ZIP visitor_counter.py
+zip -r $LAMBDA_ZIP visitor_counter.py
 cd .. || handle_error $LINENO
 
 # Create Lambda bucket if it doesn't already exist
