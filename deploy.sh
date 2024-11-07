@@ -56,7 +56,7 @@ log "Deploying CloudFormation stacks..."
 log "Deploying ACM Certificate..."
 aws cloudformation deploy \
   --template-file cloudformation/certificates/acm-certificate.yml \
-  --stack-name Acm-certificate \
+  --stack-name $CERTIFICATE_STACK_NAME \
   --region $CERTIFICATE_REGION \
   --parameter-overrides DomainName=$DOMAIN_NAME
   
