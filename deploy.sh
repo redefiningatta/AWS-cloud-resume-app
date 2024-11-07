@@ -54,7 +54,7 @@ aws s3 cp lambda/$LAMBDA_ZIP s3://$LAMBDA_CODE_BUCKET/
 log "Deploying CloudFormation stacks..."
 
 log "Deploying ACM Certificate..."
-aws cloudformation deploy \ 
+aws cloudformation deploy \
   --template-file cloudformation/certificates/acm-certificate.yml \
   --stack-name Acm-certificate \
   --region $CERTIFICATE_REGION \
