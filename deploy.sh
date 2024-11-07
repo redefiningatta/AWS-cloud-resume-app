@@ -33,9 +33,9 @@ fi
 
 # Zip Lambda function code
 log "Zipping Lambda function..."
-cd backend/lambda || handle_error $LINENO
+cd lambda || handle_error $LINENO
 7z a -tzip $LAMBDA_ZIP visitor_counter.py
-cd ../../ || handle_error $LINENO
+cd .. || handle_error $LINENO
 
 # Create Lambda bucket if it doesn't already exist
 if ! aws s3api head-bucket --bucket $LAMBDA_CODE_BUCKET 2>/dev/null; then
