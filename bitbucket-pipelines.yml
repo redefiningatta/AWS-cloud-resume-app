@@ -8,6 +8,8 @@ pipelines:
           
           - export AWS_WEB_IDENTITY_TOKEN_FILE=$(pwd)/web-identity-token
           - echo $BITBUCKET_STEP_OIDC_TOKEN > $(pwd)/web-identity-token
+          - echo $AWS_REGION
+          - echo AWS_ROLE_ARN
           
           # Install p7zip using yum
           - echo "Installing zip..."
