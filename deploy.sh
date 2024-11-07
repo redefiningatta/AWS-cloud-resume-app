@@ -19,11 +19,11 @@ trap 'handle_error $LINENO' ERR
 
 # Define variables
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-LAMBDA_CODE_BUCKET="${AWS_ACCOUNT_ID}-lambda-code-bucket"
-LAMBDA_ZIP="visitor_counter.zip"
-AWS_REGION="eu-west-2"
-CERTIFICATE_REGION="us-east-1"  # ACM certificates for CloudFront must be in us-east-1
-DOMAIN_NAME="resume.iamatta.com"
+# LAMBDA_CODE_BUCKET="${AWS_ACCOUNT_ID}-lambda-code-bucket"
+# LAMBDA_ZIP="visitor_counter.zip"
+# AWS_REGION="eu-west-2"
+# CERTIFICATE_REGION="us-east-1"  # ACM certificates for CloudFront must be in us-east-1
+# DOMAIN_NAME="resume.iamatta.com"
 
 # Check if 7z (7-Zip) is installed
 if ! command -v zip &> /dev/null; then
@@ -54,10 +54,11 @@ aws s3 cp lambda/$LAMBDA_ZIP s3://$LAMBDA_CODE_BUCKET/
 log "Deploying CloudFormation stacks..."
 
 log "Deploying ACM Certificate..."
-aws cloudformation deploy \ 
+aws cloudformation deploy \
   --template-file cloudformation/certificates/acm-certificate.yml \
   --stack-name Acm-certificate \
   --region $CERTIFICATE_REGION \
+  --parameter-overrides DomainName=$DOMAIN_NAME
   
 
 
