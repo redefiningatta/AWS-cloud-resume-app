@@ -5,17 +5,13 @@ pipelines:
     - step:
         oidc: true
         script:
-          - export AWS_REGION=eu-west-2
-          - export CERTIFICATE_REGION="us-east-1"
-          - export DOMAIN_NAME="resume.iamatta.com"
-          - export AWS_ROLE_ARN=arn:aws:iam::503561439493:role/cloud-resume-admin
+          
           - export AWS_WEB_IDENTITY_TOKEN_FILE=$(pwd)/web-identity-token
-          - export LAMBDA_CODE_BUCKET="${BITBUCKET_REPO_OWNER}-lambda-code-bucket"
           - echo $BITBUCKET_STEP_OIDC_TOKEN > $(pwd)/web-identity-token
           
           # Install p7zip using yum
           - echo "Installing zip..."
-          - yum install -y zip
+          - if ! command -v zip &> /dev/null; then yum install -y zip; fi
           
           # Run deploy.sh script for deployment
           - chmod +x deploy.sh
