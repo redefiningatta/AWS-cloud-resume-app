@@ -13,9 +13,13 @@ pipelines:
           - export LAMBDA_CODE_BUCKET="${BITBUCKET_REPO_OWNER}-lambda-code-bucket"
           - echo $BITBUCKET_STEP_OIDC_TOKEN > $(pwd)/web-identity-token
           
-          # Install 7-Zip
-          - apt-get update && apt-get install -y p7zip-full
+          # Install p7zip using yum
+          - echo "Installing p7zip..."
+          - yum install -y p7zip
           
           # Run deploy.sh script for deployment
           - chmod +x deploy.sh
           - ./deploy.sh  # This runs the deploy script, which handles all AWS deployment tasks
+
+        artifacts:
+          - backend/lambda/visitor_counter.zip
