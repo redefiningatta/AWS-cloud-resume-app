@@ -19,7 +19,7 @@ trap 'handle_error $LINENO' ERR
 
 # Define variables
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-# LAMBDA_CODE_BUCKET="${AWS_ACCOUNT_ID}-lambda-code-bucket"
+LAMBDA_CODE_BUCKET="${AWS_ACCOUNT_ID}-lambda-code-bucket"
 # LAMBDA_ZIP="visitor_counter.zip"
 # AWS_REGION="eu-west-2"
 # CERTIFICATE_REGION="us-east-1"  # ACM certificates for CloudFront must be in us-east-1
