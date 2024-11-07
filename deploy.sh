@@ -47,7 +47,7 @@ fi
 
 # Upload Lambda function to S3
 log "Uploading Lambda function to S3..."
-aws s3 cp backend/lambda/$LAMBDA_ZIP s3://$LAMBDA_CODE_BUCKET/
+aws s3 cp lambda/$LAMBDA_ZIP s3://$LAMBDA_CODE_BUCKET/
 
 
 # Deploy CloudFormation stacks
@@ -72,7 +72,7 @@ log "Certificate successfully created and validated: $CERTIFICATE_ARN"
 # Deploy backend resources (Lambda, API Gateway, DynamoDB)
 log "Deploying backend stack..."
 aws cloudformation deploy \
-  --template-file backend/cloudformation/backend.yml \
+  --template-file cloudformation/backend/backend.yml \
   --stack-name cloud-resume-backend \
   --capabilities CAPABILITY_IAM \
   --parameter-overrides LambdaCodeBucket=$LAMBDA_CODE_BUCKET
@@ -80,7 +80,7 @@ aws cloudformation deploy \
 # Deploy frontend resources (S3, CloudFront)
 log "Deploying frontend stack..."
 aws cloudformation deploy \
-  --template-file frontend/cloudformation/frontend.yml \
+  --template-file cloudformation/frontend/frontend.yml \
   --stack-name cloud-resume-frontend \
   --capabilities CAPABILITY_IAM \
   --parameter-overrides DomainName=$DOMAIN_NAME CertificateArn=$CERTIFICATE_ARN
@@ -116,22 +116,29 @@ update_js_file() {
 }
 
 # Update JavaScript file with API URL
-JS_FILE="./frontend/static/visitor-counter.js"  # Change this to your actual JavaScript file path
+JS_FILE=".assets/static/scripts.js"  # Change this to your actual JavaScript file path
 update_js_file "$JS_FILE" "$API_URL"
 
 # Function to upload static files to S3
 upload_static_files() {
-    local static_dir=$1
-    if [[ -d "$static_dir" ]]; then
-        log "Uploading static files from $static_dir to S3 bucket $FRONTEND_BUCKET_NAME..."
-        aws s3 sync "$static_dir" "s3://$FRONTEND_BUCKET_NAME" --delete #--acl public-read
+    local source_dir=$1
+    local dest_path=$2  # This allows specifying a subpath in the S3 bucket
+
+    if [[ -d "$source_dir" ]]; then
+        log "Uploading files from $source_dir to s3://$FRONTEND_BUCKET_NAME/$dest_path..."
+        aws s3 sync "$source_dir" "s3://$FRONTEND_BUCKET_NAME/$dest_path" --delete
     else
-        log "Directory $static_dir does not exist. Skipping static file upload."
+        log "Directory $source_dir does not exist. Skipping upload for $source_dir."
     fi
 }
 
-# Check if the static files directory exists and upload files
-STATIC_FILES_DIR="./frontend/static"  # Change this to your static files directory
-upload_static_files "$STATIC_FILES_DIR"
+# Define the directories for static files and images
+STATIC_FILES_DIR="./assets/static"  # Path to static files
+IMAGES_DIR="./assets/images"        # Path to images
+
+# Upload static files and images to S3, ensuring correct subpaths
+upload_static_files "$STATIC_FILES_DIR" "static"   # Sync assets/static to s3://bucket-name/static
+upload_static_files "$IMAGES_DIR" "images"         # Sync assets/images to s3://bucket-name/images
+
 
 log "Deployment complete!" - 
