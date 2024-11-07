@@ -59,12 +59,24 @@ aws cloudformation deploy \
   --stack-name $CERTIFICATE_STACK_NAME \
   --region $CERTIFICATE_REGION \
   --parameter-overrides DomainName=$DOMAIN_NAME
-  
-
 
 log "Waiting for certificate validation..."
 
+# Give CloudFormation some time to fully deploy before checking
+sleep 10  # Add a small delay to allow stack creation to fully propagate
+
+log "Checking if stack has the expected outputs..."
+aws cloudformation describe-stacks --stack-name $CERTIFICATE_STACK_NAME --region $CERTIFICATE_REGION
+
 CERTIFICATE_ARN=$(aws cloudformation describe-stacks --stack-name $CERTIFICATE_STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='CertificateArn'].OutputValue" --output text)
+
+# Check if CERTIFICATE_ARN is returned
+if [ -z "$CERTIFICATE_ARN" ]; then
+  log "Certificate ARN is empty or not found."
+  exit 1
+fi
+
+log "Certificate ARN: $CERTIFICATE_ARN"
 
 aws acm wait certificate-validated --certificate-arn $CERTIFICATE_ARN --region $CERTIFICATE_REGION
 
