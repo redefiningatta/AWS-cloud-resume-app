@@ -14,8 +14,8 @@ pipelines:
           - echo $BITBUCKET_STEP_OIDC_TOKEN > $(pwd)/web-identity-token
           
           # Install p7zip using yum
-          - echo "Installing p7zip..."
-          - yum install -y p7zip
+          - echo "Installing zip..."
+          - yum install -y zip
           
           # Run deploy.sh script for deployment
           - chmod +x deploy.sh
