@@ -20,7 +20,7 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
       WebsiteConfiguration:
-        IndexDocument: resume.html
+        IndexDocument: static/resume.html
         #ErrorDocument: error.html
 
   # Bucket Policy to allow CloudFront to read from the S3 bucket
@@ -76,7 +76,7 @@ Resources:
           MinimumProtocolVersion: TLSv1.2_2021
         Aliases:
           - !Ref DomainName
-        DefaultRootObject: index.html
+        DefaultRootObject: static/resume.html
         PriceClass: PriceClass_100
         IPV6Enabled: true
 
