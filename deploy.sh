@@ -120,22 +120,43 @@ else
     log "Check Lambda function logs for more details."
 fi
 
-# Function to update JavaScript file with API URL
+# # Function to update JavaScript file with API URL
+# update_js_file() {
+#     local js_file=$1
+#     local api_url=$2
+
+#     if [ -f "$js_file" ]; then
+#         log "Updating $js_file with API URL: $api_url"
+#         sed -i "s|{{API_URL}}|$api_url|" "$js_file"
+#     else
+#         log "File $js_file does not exist. Skipping update."
+#     fi
+# }
+
+# # Update JavaScript file with API URL
+# JS_FILE=".assets/static/scripts.js"  # Change this to your actual JavaScript file path
+# update_js_file "$JS_FILE" "$API_URL"
+
 update_js_file() {
     local js_file=$1
     local api_url=$2
 
-    if [ -f "$js_file" ]; then
-        log "Updating $js_file with API URL: $api_url"
-        sed -i "s|{{API_URL}}|$api_url|" "$js_file"
-    else
+    log "Attempting to update JavaScript file: $js_file with API URL: $api_url"
+    
+    if [ ! -f "$js_file" ]; then
         log "File $js_file does not exist. Skipping update."
+        return
+    fi
+
+    if grep -q "{{API_URL}}" "$js_file"; then
+        log "Found placeholder in $js_file. Proceeding with update."
+        sed -i "s|{{API_URL}}|$api_url|" "$js_file"
+        log "$js_file has been updated with API URL."
+    else
+        log "Placeholder {{API_URL}} not found in $js_file. No changes made."
     fi
 }
 
-# Update JavaScript file with API URL
-JS_FILE=".assets/static/scripts.js"  # Change this to your actual JavaScript file path
-update_js_file "$JS_FILE" "$API_URL"
 
 # Function to upload static files to S3
 upload_static_files() {
