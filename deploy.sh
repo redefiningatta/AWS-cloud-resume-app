@@ -50,37 +50,42 @@ log "Uploading Lambda function to S3..."
 aws s3 cp lambda/$LAMBDA_ZIP s3://$LAMBDA_CODE_BUCKET/
 
 
-# Deploy CloudFormation stacks
 log "Deploying CloudFormation stacks..."
 
 log "Deploying ACM Certificate..."
+CERTIFICATE_STACK_NAME="Acm-certificate"
+
 aws cloudformation deploy \
   --template-file cloudformation/certificates/acm-certificate.yml \
   --stack-name $CERTIFICATE_STACK_NAME \
   --region $CERTIFICATE_REGION \
   --parameter-overrides DomainName=$DOMAIN_NAME
 
-log "Waiting for certificate validation..."
+log "Waiting for stack creation to complete..."
+aws cloudformation wait stack-create-complete --stack-name $CERTIFICATE_STACK_NAME --region $CERTIFICATE_REGION
 
-# Give CloudFormation some time to fully deploy before checking
-sleep 10  # Add a small delay to allow stack creation to fully propagate
+log "Fetching Certificate ARN from stack outputs..."
 
-log "Checking if stack has the expected outputs..."
-aws cloudformation describe-stacks --stack-name $CERTIFICATE_STACK_NAME --region $CERTIFICATE_REGION
-
-CERTIFICATE_ARN=$(aws cloudformation describe-stacks --stack-name $CERTIFICATE_STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='CertificateArn'].OutputValue" --output text)
+# Retrieve CertificateArn directly using AWS CLI's query feature
+CERTIFICATE_ARN=$(aws cloudformation describe-stacks \
+  --stack-name $CERTIFICATE_STACK_NAME \
+  --region $CERTIFICATE_REGION \
+  --query "Stacks[0].Outputs[?OutputKey=='CertificateArn'].OutputValue" \
+  --output text)
 
 # Check if CERTIFICATE_ARN is returned
-if [ -z "$CERTIFICATE_ARN" ]; then
+if [ -z "$CERTIFICATE_ARN" ] || [ "$CERTIFICATE_ARN" == "None" ]; then
   log "Certificate ARN is empty or not found."
   exit 1
 fi
 
 log "Certificate ARN: $CERTIFICATE_ARN"
 
+log "Waiting for certificate validation..."
 aws acm wait certificate-validated --certificate-arn $CERTIFICATE_ARN --region $CERTIFICATE_REGION
 
 log "Certificate successfully created and validated: $CERTIFICATE_ARN"
+
 
 # Deploy backend resources (Lambda, API Gateway, DynamoDB)
 log "Deploying backend stack..."
