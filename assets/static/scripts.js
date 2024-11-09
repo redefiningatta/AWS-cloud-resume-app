@@ -1,4 +1,4 @@
-const apiUrl = 'https://cbtrmkciuf.execute-api.eu-west-2.amazonaws.com/dev/count';
+const apiUrl = '{{API_URL}}';
 
 async function fetchVisitorCount() {
     try {
