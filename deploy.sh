@@ -158,7 +158,7 @@ update_js_file() {
 }
 
 # Update JavaScript file with API URL
-JS_FILE=".assets/static/scripts.js"  # Change this to your actual JavaScript file path
+JS_FILE="assets/static/scripts.js"  # Change this to your actual JavaScript file path
 update_js_file "$JS_FILE" "$API_URL"
 
 
@@ -180,7 +180,7 @@ STATIC_FILES_DIR="./assets/static"  # Path to static files
 IMAGES_DIR="./assets/images"        # Path to images
 
 # Upload static files and images to S3, ensuring correct subpaths
-upload_static_files "$STATIC_FILES_DIR" "static"   # Sync assets/static to s3://bucket-name/static
+upload_static_files "$STATIC_FILES_DIR" ""   # Sync assets/static to root of s3 bucket
 upload_static_files "$IMAGES_DIR" "images"         # Sync assets/images to s3://bucket-name/images
 
 
