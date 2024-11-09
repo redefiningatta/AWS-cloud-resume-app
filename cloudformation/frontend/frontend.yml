@@ -37,6 +37,7 @@ Resources:
             Resource: !Sub "arn:aws:s3:::${S3BucketFrontend}/*"
             Principal:
               Service: cloudfront.amazonaws.com
+ 
  # CloudFront Origin Access Control (OAC) for the S3 bucket
   CloudFrontOriginAccessControl:
     Type: "AWS::CloudFront::OriginAccessControl"
@@ -76,7 +77,7 @@ Resources:
           MinimumProtocolVersion: TLSv1.2_2021
         Aliases:
           - !Ref DomainName
-        DefaultRootObject: static/resume.html
+        DefaultRootObject: resume.html
         PriceClass: PriceClass_100
         IPV6Enabled: true
 
