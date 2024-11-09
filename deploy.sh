@@ -157,7 +157,7 @@ update_js_file() {
     fi
 }
 
-Update JavaScript file with API URL
+# Update JavaScript file with API URL
 JS_FILE=".assets/static/scripts.js"  # Change this to your actual JavaScript file path
 update_js_file "$JS_FILE" "$API_URL"
 
