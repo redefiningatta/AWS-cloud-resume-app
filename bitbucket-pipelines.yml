@@ -19,5 +19,19 @@ pipelines:
           - chmod +x deploy.sh
           - ./deploy.sh  # This runs the deploy script, which handles all AWS deployment tasks
 
+    - step:
+        name: Run Cypress Tests
+        image: cypress/included:13.15.2
+        caches:
+          - node
+        script:
+          # install necessary dependencies 
+          - npm ci 
+          - npm install mochawesome 
+
+        # Run Cypress tests
+          - npx cypress run --reporter mochawesome
+
         artifacts:
-          - backend/lambda/visitor_counter.zip
+          - mochawesome-report/**
+          - cypress/screenshots/**
