@@ -18,7 +18,7 @@ async function fetchVisitorCount() {
         console.log("Response Data: ", data);
 
         if (data.visitorCount!== undefined) {
-            document.getElementById('visitor-count').innerText = `Hey!! Visitor: ${data.visitorCount}`;
+            document.getElementById('visitor-count').innerText = `Visitor Number: ${data.visitorCount}`;
         } else {
             console.error('Visitor count not found in the response data');
         }
