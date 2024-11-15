@@ -20,10 +20,7 @@ trap 'handle_error $LINENO' ERR
 # Define variables
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 LAMBDA_CODE_BUCKET="${AWS_ACCOUNT_ID}-lambda-code-bucket"
-# LAMBDA_ZIP="visitor_counter.zip"
-# AWS_REGION="eu-west-2"
-# CERTIFICATE_REGION="us-east-1"  # ACM certificates for CloudFront must be in us-east-1
-# DOMAIN_NAME="resume.iamatta.com"
+
 
 # Check if 7z (7-Zip) is installed
 if ! command -v zip &> /dev/null; then
@@ -120,23 +117,6 @@ else
     log "Check Lambda function logs for more details."
 fi
 
-# # Function to update JavaScript file with API URL
-# update_js_file() {
-#     local js_file=$1
-#     local api_url=$2
-
-#     if [ -f "$js_file" ]; then
-#         log "Updating $js_file with API URL: $api_url"
-#         sed -i "s|{{API_URL}}|$api_url|" "$js_file"
-#     else
-#         log "File $js_file does not exist. Skipping update."
-#     fi
-# }
-
-# # Update JavaScript file with API URL
-# JS_FILE=".assets/static/scripts.js"  # Change this to your actual JavaScript file path
-# update_js_file "$JS_FILE" "$API_URL"
-
 update_js_file() {
     local js_file=$1
     local api_url=$2
@@ -160,6 +140,11 @@ update_js_file() {
 # Update JavaScript file with API URL
 JS_FILE="assets/static/scripts.js"  # Change this to your actual JavaScript file path
 update_js_file "$JS_FILE" "$API_URL"
+
+# Update Cypress Config file
+
+CY_FILE="cypress.config.js"
+update_js_file "$CY_FILE" "$API_URL"
 
 
 # Function to upload static files to S3
