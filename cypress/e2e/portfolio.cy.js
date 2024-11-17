@@ -5,6 +5,9 @@ describe("Visitor Counter Test with Actual Backend", () => {
     // Check if the API URL is set correctly
     expect(apiUrl).to.be.a("string").and.not.be.empty;
 
+    // Visit the webpage causing the page to increment
+    cy.visit("https://resume.iamatta.com");
+
     // Fetch the visitor count from the actual backend API
     cy.request(apiUrl).then((response) => {
       // Check the response status
@@ -13,9 +16,6 @@ describe("Visitor Counter Test with Actual Backend", () => {
       // Verify the response body structure and visitor count
       expect(response.body).to.have.property("visitorCount");
       const visitorCount = response.body.visitorCount;
-
-      // Visit the webpage to verify the displayed count
-      cy.visit("https://resume.iamatta.com");
 
       // Ensure the visitor count element is visible and contains the correct count
       cy.get("#visitor-count")
