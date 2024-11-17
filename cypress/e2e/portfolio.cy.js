@@ -1,4 +1,4 @@
-function checkUpdatedCount(expectedCount, retries = 5) {
+function checkUpdatedCount(expectedCount, apiUrl, retries = 5) {
   cy.request('GET', apiUrl).then((response) => {
     const currentCount = response.body.visitorCount;
     cy.log(`Current count: ${currentCount}, Expected count: ${expectedCount}`);
@@ -27,7 +27,7 @@ describe("Visitor Counter Test with Actual Backend", () => {
     cy.request('GET', apiUrl).then((response) => {
       const initialCount = response.body.visitorCount;
       cy.wait(1000); // Wait for the increment
-      checkUpdatedCount(initialCount + 1);
+      checkUpdatedCount(initialCount + 1, apiUrl);
     });
   });
 });
