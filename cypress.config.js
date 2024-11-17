@@ -5,10 +5,10 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    baseUrl: "https://resume.iamatta.com",
+    // baseUrl: "https://resume.iamatta.com",
     env: {
       API_URL: '{{API_URL}}' // This will be replaced by the shell script
-    }
+    },
   },
 });
 
