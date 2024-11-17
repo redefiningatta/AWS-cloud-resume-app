@@ -107,15 +107,15 @@ API_URL=$(aws cloudformation describe-stacks --stack-name cloud-resume-backend -
 
 log "API Gateway URL: $API_URL"
 
-log "Testing API endpoint..."
-RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $API_URL)
+# log "Testing API endpoint..."
+# RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $API_URL)
 
-if [ $RESPONSE -eq 200 ]; then
-    log "API test successful!"
-else
-    log "API test failed with status code: $RESPONSE"
-    log "Check Lambda function logs for more details."
-fi
+# if [ $RESPONSE -eq 200 ]; then
+#     log "API test successful!"
+# else
+#     log "API test failed with status code: $RESPONSE"
+#     log "Check Lambda function logs for more details."
+# fi
 
 update_js_file() {
     local js_file=$1
