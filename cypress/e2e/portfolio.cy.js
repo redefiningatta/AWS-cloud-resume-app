@@ -9,23 +9,39 @@ describe("Visitor Counter Test with Actual Backend", () => {
     cy.visit("https://resume.iamatta.com");
 
     // Fetch the visitor count from the actual backend API
-    cy.request({
-      url: apiUrl,
-      retryOnStatusCodeFailure: true,
-      retryOnTimeout: true,
-      timeout: 5000,
-    }).then((response) => {
-      // Check the response status
-      expect(response.status).to.eq(200);
+    cy.request('GET', apiUrl).then((response) => {
+      let initialCount = response.body.visitorCount;
 
-      // Verify the response body structure and visitor count
-      expect(response.body).to.have.property("visitorCount");
-      const visitorCount = response.body.visitorCount;
+      // Wait for 1 second to allow backend update (to simulate the increment delay)
+      cy.wait(1000);
 
-      // Ensure the visitor count element is visible and contains the correct count
-      cy.get("#visitor-count")
-        .should("be.visible")
-        .and("contain.text", `Visitor Number: ${visitorCount}`);
+      // Retry mechanism to fetch updated count
+      function checkUpdatedCount(retries = 5) {
+        cy.request('GET', apiUrl).then((updatedResponse) => {
+          let updatedCount = updatedResponse.body.visitorCount;
+
+          // Check if the updated count is correct
+          if (updatedCount === initialCount + 1) {
+            // Assert that the visitor count has incremented by 1
+            expect(updatedCount).to.eq(initialCount + 1);
+
+            // Ensure the visitor count element is visible and contains the correct updated count
+            cy.get("#visitor-count")
+              .should("be.visible")
+              .and("contain.text", `Visitor Number: ${updatedCount}`);
+          } else if (retries > 0) {
+            // Retry if the count hasn't updated yet
+            cy.wait(1000); // wait 1 second before retrying
+            checkUpdatedCount(retries - 1);
+          } else {
+            // Fail the test if the count doesn't update in the retries
+            throw new Error('Visitor count update failed after retries');
+          }
+        });
+      }
+
+      // Start the retry mechanism
+      checkUpdatedCount();
     });
   });
 });
