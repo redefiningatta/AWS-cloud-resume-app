@@ -10,8 +10,5 @@ fi
 
 echo "API Gateway URL: $API_URL"
 
-# Set the API URL as an environment variable
-export API_URL=$API_URL
-
 # Run Cypress with the updated environment variable
-npx cypress run --reporter mochawesome
+npx cypress run --env API_URL=$API_URL --reporter mochawesome
