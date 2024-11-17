@@ -30,8 +30,8 @@ pipelines:
           - npm install mochawesome 
 
         # Run Cypress tests
-          - npx cypress run --reporter mochawesome
-
+          - chmod +x cy-deploy.sh
+          - ./cy-deploy.sh
         artifacts:
           - mochawesome-report/**
           - cypress/screenshots/**

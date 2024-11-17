@@ -141,12 +141,6 @@ update_js_file() {
 JS_FILE="assets/static/scripts.js"  # Change this to your actual JavaScript file path
 update_js_file "$JS_FILE" "$API_URL"
 
-# Update Cypress Config file
-
-CY_FILE="cypress.config.js"
-update_js_file "$CY_FILE" "$API_URL"
-
-
 # Function to upload static files to S3
 upload_static_files() {
     local source_dir=$1

@@ -15,7 +15,7 @@ describe("Visitor Counter Test with Actual Backend", () => {
       const visitorCount = response.body.visitorCount;
 
       // Visit the webpage to verify the displayed count
-      cy.visit("resume.iamatta.com");
+      cy.visit("https://resume.iamatta.com");
 
       // Ensure the visitor count element is visible and contains the correct count
       cy.get("#visitor-count")
