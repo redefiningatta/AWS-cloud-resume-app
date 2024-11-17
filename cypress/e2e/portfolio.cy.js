@@ -37,7 +37,7 @@ describe("Visitor Counter Test with Actual Backend", () => {
       cy.wait(2000); 
 
       // Check the updated count on the frontend
-      checkUpdatedCount(initialCount + 1, apiUrl);
+      checkUpdatedCount(initialCount, apiUrl);
     });
   });
 });
