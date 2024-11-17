@@ -9,7 +9,12 @@ describe("Visitor Counter Test with Actual Backend", () => {
     cy.visit("https://resume.iamatta.com");
 
     // Fetch the visitor count from the actual backend API
-    cy.request(apiUrl).then((response) => {
+    cy.request({
+      url: apiUrl,
+      retryOnStatusCodeFailure: true,
+      retryOnTimeout: true,
+      timeout: 5000,
+    }).then((response) => {
       // Check the response status
       expect(response.status).to.eq(200);
 
