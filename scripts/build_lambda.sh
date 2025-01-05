@@ -36,14 +36,28 @@ if [[ -z "$LAMBDA_ZIP" ]]; then
     LAMBDA_ZIP="visitor_counter_${TIMESTAMP}_${GIT_COMMIT_HASH}.zip"
 fi
 
-# Build Lambda Package
+# Log the intended Lambda zip filename
 log "Building Lambda package: $LAMBDA_ZIP..."
+
+# Change to the Lambda directory
 cd "$LAMBDA_DIR" || handle_error $LINENO
+
+# Check for the visitor_counter.py file
 if [[ ! -f "visitor_counter.py" ]]; then
     log "visitor_counter.py not found in Lambda directory."
     exit 1
 fi
-zip -r "$LAMBDA_ZIP" visitor_counter.py || handle_error $LINENO
+log "Found visitor_counter.py, proceeding with zip."
+
+# Check if the zip file already exists
+if [[ -f "$LAMBDA_ZIP" ]]; then
+    log "Lambda zip file already exists, removing old zip file: $LAMBDA_ZIP"
+    rm "$LAMBDA_ZIP" || handle_error $LINENO
+fi
+
+# Create the zip package
+log "Starting zip creation..."
+zip -r "$LAMBDA_ZIP" visitor_counter.py -v || handle_error $LINENO
 
 # Ensure that the zip file was created
 if [[ ! -f "$LAMBDA_ZIP" ]]; then
@@ -51,6 +65,7 @@ if [[ ! -f "$LAMBDA_ZIP" ]]; then
     exit 1
 fi
 
+# Change back to the previous directory
 cd - || handle_error $LINENO
 
 # Ensure S3 bucket exists
