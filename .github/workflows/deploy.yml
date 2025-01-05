@@ -1,0 +1,47 @@
+name: Deploy Cloud Resume Challenge
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::503561439493:role/aws-cloud-resume-app-gh
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+
+      - name: Check prerequisites
+        run: ./scripts/check_prerequisites.sh
+
+      - name: Build and upload Lambda
+        run: ./scripts/build_lambda.sh
+
+      - name: Deploy ACM Certificate
+        run: ./scripts/deploy_acm_certificate.sh
+        env:
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+          CERTIFICATE_REGION: ${{ secrets.CERTIFICATE_REGION }}
+
+      - name: Deploy CloudFormation stacks
+        run: ./scripts/deploy_cloudformation_stacks.sh
+        env:
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+          CERTIFICATE_ARN: ${{ steps.deploy_acm.outputs.certificate_arn }}
+
+      - name: Update frontend
+        run: ./scripts/update_frontend.sh
