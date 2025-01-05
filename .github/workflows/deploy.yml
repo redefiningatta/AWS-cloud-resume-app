@@ -30,6 +30,8 @@ jobs:
 
       - name: Build and upload Lambda
         run: ./scripts/build_lambda.sh
+        env:
+          LAMBDA_ZIP: ${{ github.sha }} # Pass the Git commit hash as the Lambda package versioning
 
       - name: Deploy ACM Certificate
         run: ./scripts/deploy_acm_certificate.sh
