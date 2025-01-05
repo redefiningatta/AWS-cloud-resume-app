@@ -29,10 +29,12 @@ if [[ ! -d "$LAMBDA_DIR" ]]; then
     exit 1
 fi
 
-# Get current timestamp for versioning (or use Git commit hash)
-TIMESTAMP=$(date '+%Y%m%d%H%M%S')
-GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
-LAMBDA_ZIP="visitor_counter_${TIMESTAMP}_${GIT_COMMIT_HASH}.zip"
+# Check if LAMBDA_ZIP is passed as an environment variable
+if [[ -z "$LAMBDA_ZIP" ]]; then
+    TIMESTAMP=$(date '+%Y%m%d%H%M%S')
+    GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
+    LAMBDA_ZIP="visitor_counter_${TIMESTAMP}_${GIT_COMMIT_HASH}.zip"
+fi
 
 # Build Lambda Package
 log "Building Lambda package: $LAMBDA_ZIP..."
@@ -42,6 +44,13 @@ if [[ ! -f "visitor_counter.py" ]]; then
     exit 1
 fi
 zip -r "$LAMBDA_ZIP" visitor_counter.py || handle_error $LINENO
+
+# Ensure that the zip file was created
+if [[ ! -f "$LAMBDA_ZIP" ]]; then
+    log "Lambda package $LAMBDA_ZIP not created successfully."
+    exit 1
+fi
+
 cd - || handle_error $LINENO
 
 # Ensure S3 bucket exists
@@ -57,7 +66,7 @@ else
 fi
 
 # Upload Lambda package to S3
-log "Uploading Lambda package to S3..."
+log "Uploading Lambda package: $LAMBDA_ZIP to S3..."
 aws s3 cp "$LAMBDA_ZIP" "s3://$LAMBDA_CODE_BUCKET/" || handle_error $LINENO
 
 # Validate upload
