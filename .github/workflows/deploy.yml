@@ -43,7 +43,7 @@ jobs:
         run: ./scripts/deploy_cloudformation_stacks.sh
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-          CERTIFICATE_ARN: ${{ steps.deploy_acm.outputs.certificate_arn }}
+          CERTIFICATE_ARN: ${{ env.CERTIFICATE_ARN }}
 
       - name: Update frontend
         run: ./scripts/update_frontend.sh
