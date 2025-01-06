@@ -8,14 +8,14 @@ CERTIFICATE_STACK_NAME="Acm-certificate"
 log "Deploying ACM Certificate..."
 aws cloudformation deploy \
   --template-file cloudformation/certificates/acm-certificate.yml \
-  --stack-name $CERTIFICATE_STACK_NAME \
+  --stack-name $NEW_CERTIFICATE_STACK_NAME \
   --region $CERTIFICATE_REGION \
   --parameter-overrides DomainName=$DOMAIN_NAME
 
 # Wait for Certificate stack
 log "Waiting for ACM Certificate stack to complete..."
 aws cloudformation wait stack-create-complete \
-  --stack-name $CERTIFICATE_STACK_NAME \
+  --stack-name $NEW_CERTIFICATE_STACK_NAME \
   --region $CERTIFICATE_REGION || {
     log "Stack creation timeout or failure. Proceeding to fetch certificate details."
 }
@@ -23,7 +23,7 @@ aws cloudformation wait stack-create-complete \
 # Fetch Certificate ARN
 log "Fetching ACM Certificate ARN..."
 CERTIFICATE_ARN=$(aws cloudformation describe-stacks \
-  --stack-name $CERTIFICATE_STACK_NAME \
+  --stack-name $NEW_CERTIFICATE_STACK_NAME \
   --region $CERTIFICATE_REGION \
   --query "Stacks[0].Outputs[?OutputKey=='CertificateArn'].OutputValue" \
   --output text)
