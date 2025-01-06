@@ -3,7 +3,7 @@
 source ./scripts/common.sh
 
 # Set LAMBDA_ZIP with a specific name
-LAMBDA_ZIP="visitor_counter_$(date +%Y%m%d%H%M%S).zip"
+LAMBDA_ZIP="visitor_counter.zip"
 
 log "Lambda zip file will be: $LAMBDA_ZIP"
 
