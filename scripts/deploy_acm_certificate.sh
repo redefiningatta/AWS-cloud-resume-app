@@ -2,8 +2,6 @@
 
 source ./scripts/common.sh
 
-CERTIFICATE_STACK_NAME="Acm-certificate"
-
 # Deploy ACM Certificate
 log "Deploying ACM Certificate..."
 aws cloudformation deploy \
