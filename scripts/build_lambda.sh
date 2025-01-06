@@ -15,7 +15,7 @@ fi
 
 # Zip Lambda function code
 log "Zipping Lambda function..."
-cd lambda|| handle_error $LINENO
+cd lambda || handle_error $LINENO
 if [ ! -f "visitor_counter.py" ]; then
     log "Error: visitor_counter.py not found in lambda directory."
     exit 1
@@ -25,12 +25,28 @@ log "Zip file created: $(ls -l "$LAMBDA_ZIP")"
 cd .. || handle_error $LINENO
 
 # Create Lambda bucket if it doesn't already exist
-if ! aws s3api head-bucket --bucket "$LAMBDA_CODE_BUCKET" 2>/dev/null; then
-    log "Creating Lambda code S3 bucket..."
-    aws s3api create-bucket --bucket "$LAMBDA_CODE_BUCKET" --region "$AWS_REGION" --create-bucket-configuration LocationConstraint="$AWS_REGION" || handle_error $LINENO
-else
-    log "Bucket $LAMBDA_CODE_BUCKET already exists."
-fi
+MAX_RETRIES=3
+RETRY_DELAY=5
+for ((i=1; i<=MAX_RETRIES; i++)); do
+    if ! aws s3api head-bucket --bucket "$LAMBDA_CODE_BUCKET" 2>/dev/null; then
+        log "Creating Lambda code S3 bucket (attempt $i)..."
+        if aws s3api create-bucket --bucket "$LAMBDA_CODE_BUCKET" \
+            --region "$AWS_REGION" \
+            --create-bucket-configuration LocationConstraint="$AWS_REGION"; then
+            log "Bucket created successfully."
+            break
+        elif [[ $i -eq $MAX_RETRIES ]]; then
+            log "Failed to create S3 bucket after $MAX_RETRIES attempts. Exiting."
+            exit 1
+        else
+            log "Bucket creation failed due to contention. Retrying in $RETRY_DELAY seconds..."
+            sleep $RETRY_DELAY
+        fi
+    else
+        log "Bucket $LAMBDA_CODE_BUCKET already exists."
+        break
+    fi
+done
 
 # Upload Lambda function to S3
 log "Uploading Lambda function to S3..."
