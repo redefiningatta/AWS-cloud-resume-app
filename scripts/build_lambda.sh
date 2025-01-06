@@ -15,7 +15,7 @@ fi
 
 # Zip Lambda function code
 log "Zipping Lambda function..."
-cd ../lambda || handle_error $LINENO
+cd lambda|| handle_error $LINENO
 if [ ! -f "visitor_counter.py" ]; then
     log "Error: visitor_counter.py not found in lambda directory."
     exit 1
