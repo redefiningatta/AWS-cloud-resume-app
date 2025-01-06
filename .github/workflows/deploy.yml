@@ -10,8 +10,51 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  # Job 1: Deploy ACM Certificate
+  deploy_certificate:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::503561439493:role/aws-cloud-resume-app-gh
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+
+      - name: Deploy ACM Certificate
+        id: deploy_acm_certificate
+        run: |
+          ./scripts/deploy_acm_certificate.sh
+        env:
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+          CERTIFICATE_REGION: ${{ secrets.CERTIFICATE_REGION }}
+          NEW_CERTIFICATE_STACK_NAME: ${{ secrets.NEW_CERTIFICATE_STACK_NAME }}
+
+      - name: Capture ACM Certificate ARN
+        id: capture_certificate_arn
+        run: |
+          CERTIFICATE_ARN=$(aws cloudformation describe-stacks \
+            --stack-name "${{ secrets.NEW_CERTIFICATE_STACK_NAME }}" \
+            --region "${{ secrets.CERTIFICATE_REGION }}" \
+            --query "Stacks[0].Outputs[?OutputKey=='CertificateArn'].OutputValue" \
+            --output text)
+          echo "CERTIFICATE_ARN=$CERTIFICATE_ARN" >> $GITHUB_ENV
+
+      - name: Set certificate ARN as output
+        run: echo "::set-output name=certificate_arn::$CERTIFICATE_ARN"
+      
+    outputs:
+      certificate_arn: ${{ steps.capture_certificate_arn.outputs.certificate_arn }}
+
+  # Job 2: Deploy CloudFormation stacks (depends on the first job)
+  deploy_stack:
+    runs-on: ubuntu-latest
+    needs: deploy_certificate  # This job will only run after deploy_certificate
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -30,20 +73,26 @@ jobs:
 
       - name: Build and upload Lambda
         run: ./scripts/build_lambda.sh
-        
-
-      - name: Deploy ACM Certificate
-        run: ./scripts/deploy_acm_certificate.sh
-        env:
-          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-          CERTIFICATE_REGION: ${{ secrets.CERTIFICATE_REGION }}
-          NEW_CERTIFICATE_STACK_NAME: ${{ secrets.NEW_CERTIFICATE_STACK_NAME }}
 
       - name: Deploy CloudFormation stacks
         run: ./scripts/deploy_cloudformation_stacks.sh
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-          CERTIFICATE_ARN: ${{ env.CERTIFICATE_ARN }}
+          CERTIFICATE_ARN: ${{ needs.deploy_certificate.outputs.certificate_arn }}
+
+  # Job 3: Update frontend (depends on the second job)
+  update_frontend:
+    runs-on: ubuntu-latest
+    needs: deploy_stack  # This job will only run after deploy_stack
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
 
       - name: Update frontend
         run: ./scripts/update_frontend.sh
+        env:
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+          CERTIFICATE_ARN: ${{ needs.deploy_certificate.outputs.certificate_arn }}

@@ -31,7 +31,11 @@ log "API Gateway URL: $API_URL"
 JS_FILE="assets/js/main.js" 
 log "Updating JavaScript file with API URL..."
 if [ -f "$JS_FILE" ]; then
-    sed -i.bak "s|{{API_URL}}|$API_URL|" "$JS_FILE"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "s|{{API_URL}}|$API_URL|" "$JS_FILE"
+    else
+        sed -i.bak "s|{{API_URL}}|$API_URL|" "$JS_FILE"
+    fi
     log "Updated $JS_FILE with API URL."
 else
     log "JavaScript file $JS_FILE not found. Skipping."
@@ -42,12 +46,13 @@ upload_static_files() {
     local source_dir=$1
     local dest_path=$2
 
-    if [[ -d "$source_dir" ]]; then
-        log "Uploading $source_dir to s3://$FRONTEND_BUCKET_NAME/$dest_path..."
-        aws s3 sync "$source_dir" "s3://$FRONTEND_BUCKET_NAME/$dest_path" --delete
-    else
-        log "Directory $source_dir does not exist. Skipping."
+    if [[ ! -d "$source_dir" || -z "$(ls -A "$source_dir")" ]]; then
+        log "Directory $source_dir is empty or does not exist. Skipping."
+        return 1
     fi
+
+    log "Uploading $source_dir to s3://$FRONTEND_BUCKET_NAME/$dest_path..."
+    aws s3 sync "$source_dir" "s3://$FRONTEND_BUCKET_NAME/$dest_path" --delete --exact-timestamps
 }
 
 # Upload CSS files
