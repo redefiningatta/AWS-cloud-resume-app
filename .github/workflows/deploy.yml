@@ -43,13 +43,7 @@ jobs:
             --region "${{ secrets.CERTIFICATE_REGION }}" \
             --query "Stacks[0].Outputs[?OutputKey=='CertificateArn'].OutputValue" \
             --output text)
-          echo "CERTIFICATE_ARN=$CERTIFICATE_ARN" >> $GITHUB_ENV
-
-      - name: Set certificate ARN as output
-        run: echo "::set-output name=certificate_arn::$CERTIFICATE_ARN"
-      
-    outputs:
-      certificate_arn: ${{ steps.capture_certificate_arn.outputs.certificate_arn }}
+          echo "certificate_arn=$CERTIFICATE_ARN" >> $GITHUB_ENV  # Save ARN as an environment variable
 
   # Job 2: Deploy CloudFormation stacks (depends on the first job)
   deploy_stack:
@@ -78,7 +72,7 @@ jobs:
         run: ./scripts/deploy_cloudformation_stacks.sh
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-          CERTIFICATE_ARN: ${{ needs.deploy_certificate.outputs.certificate_arn }}
+          CERTIFICATE_ARN: ${{ env.certificate_arn }}  # Use the environment variable passed from the previous job
 
   # Job 3: Update frontend (depends on the second job)
   update_frontend:
@@ -95,4 +89,4 @@ jobs:
         run: ./scripts/update_frontend.sh
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-          CERTIFICATE_ARN: ${{ needs.deploy_certificate.outputs.certificate_arn }}
+          CERTIFICATE_ARN: ${{ env.certificate_arn }}  # Use the environment variable passed from the previous job

@@ -4,9 +4,6 @@ Parameters:
   DomainName:
     Type: String
     Description: "Your domain name"
-  CertificateArn:
-    Type: String
-    Description: "ARN of the ACM certificate"
 
 Resources:
   # S3 Bucket to store static website assets
@@ -72,7 +69,7 @@ Resources:
           Compress: true
           CachePolicyId: !Ref CachePolicy
         ViewerCertificate:
-          AcmCertificateArn: !Ref CertificateArn
+          AcmCertificateArn: !Ref AcmCertificate
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2021
         Aliases:
