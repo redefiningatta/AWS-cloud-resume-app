@@ -52,7 +52,7 @@ upload_static_files() {
     fi
 
     log "Uploading $source_dir to s3://$FRONTEND_BUCKET_NAME/$dest_path..."
-    aws s3 sync "$source_dir" "s3://$FRONTEND_BUCKET_NAME/$dest_path" --delete --exact-timestamps
+    aws s3 sync "$source_dir" "s3://$FRONTEND_BUCKET_NAME/$dest_path" --exact-timestamps
 }
 
 # Upload CSS files
