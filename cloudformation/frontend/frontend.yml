@@ -20,7 +20,7 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
-    WebsiteConfiguration:
+      WebsiteConfiguration:
         IndexDocument: index.html
 
   # Bucket Policy to allow CloudFront to read from the S3 bucket
