@@ -11,8 +11,7 @@ Resources:
     Properties:
       DomainName: !Ref DomainName
       ValidationMethod: DNS
-      SubjectAlternativeNames:
-        - !Sub "www.${DomainName}"
+      
 
           
 Outputs:
