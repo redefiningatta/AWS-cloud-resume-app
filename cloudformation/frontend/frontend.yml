@@ -20,11 +20,6 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
-<<<<<<< HEAD
-=======
-      WebsiteConfiguration:
-        IndexDocument: index.html
->>>>>>> 8502a7023f80dac76278632c35ee7b93cbcd3a64
 
   # Bucket Policy to allow CloudFront to read from the S3 bucket using OAC
   S3BucketPolicy:
