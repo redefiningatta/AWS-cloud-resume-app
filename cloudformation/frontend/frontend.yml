@@ -20,30 +20,31 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
-    WebsiteConfiguration:
-        IndexDocument: index.html
 
-  # Bucket Policy to allow CloudFront to read from the S3 bucket
+  # Bucket Policy to allow CloudFront to read from the S3 bucket using OAC
   S3BucketPolicy:
     Type: AWS::S3::BucketPolicy
-    Properties: 
+    Properties:
       Bucket: !Ref S3BucketFrontend
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Effect: Allow
-            Action:
-              - s3:GetObject
+          - Sid: AllowCloudFrontAccessWithOAC
+            Effect: Allow
+            Action: s3:GetObject
             Resource: !Sub "arn:aws:s3:::${S3BucketFrontend}/*"
             Principal:
               Service: cloudfront.amazonaws.com
- 
- # CloudFront Origin Access Control (OAC) for the S3 bucket
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:oac/${CloudFrontOriginAccessControl}"
+
+  # CloudFront Origin Access Control (OAC) for the S3 bucket
   CloudFrontOriginAccessControl:
     Type: "AWS::CloudFront::OriginAccessControl"
     Properties:
       OriginAccessControlConfig:
-        Name: "Cloud Resume OAC"
+        Name: "CloudResumeOAC"
         OriginAccessControlOriginType: "s3"
         SigningBehavior: "always"
         SigningProtocol: "sigv4"
@@ -57,8 +58,6 @@ Resources:
         Origins:
           - Id: S3Origin
             DomainName: !GetAtt S3BucketFrontend.DomainName
-            S3OriginConfig:
-              OriginAccessIdentity: ''
             OriginAccessControlId: !Ref CloudFrontOriginAccessControl
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
