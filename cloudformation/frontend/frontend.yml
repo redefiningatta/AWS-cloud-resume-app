@@ -20,6 +20,8 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
+    WebsiteConfiguration:
+        IndexDocument: index.html
 
   # Bucket Policy to allow CloudFront to read from the S3 bucket
   S3BucketPolicy:
@@ -55,7 +57,8 @@ Resources:
         Origins:
           - Id: S3Origin
             DomainName: !GetAtt S3BucketFrontend.DomainName
-            S3OriginConfig: {} 
+            S3OriginConfig:
+              OriginAccessIdentity: ''
             OriginAccessControlId: !Ref CloudFrontOriginAccessControl
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
