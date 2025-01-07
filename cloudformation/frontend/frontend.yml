@@ -20,6 +20,7 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
+      
 
   # Bucket Policy to allow CloudFront to read from the S3 bucket using OAC
   S3BucketPolicy:
@@ -57,7 +58,9 @@ Resources:
         Enabled: true
         Origins:
           - Id: S3Origin
-            DomainName: !GetAtt S3BucketFrontend.DomainName
+            DomainName: !GetAtt S3BucketFrontend.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ""
             OriginAccessControlId: !Ref CloudFrontOriginAccessControl
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
