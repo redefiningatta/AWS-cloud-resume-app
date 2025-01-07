@@ -17,5 +17,5 @@ Resources:
           
 Outputs:
   CertificateArn:
-    Value: !Ref AcmCertificate
+    Value: !Ref CertificateArn
     Description: ARN of the ACM Certificate

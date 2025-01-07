@@ -59,6 +59,8 @@ jobs:
         run: ./scripts/deploy_cloudformation_stacks.sh
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+          CERTIFICATE_REGION: ${{ secrets.CERTIFICATE_REGION }}
+          NEW_CERTIFICATE_STACK_NAME: ${{ secrets.NEW_CERTIFICATE_STACK_NAME }}
     
 
   # Job 3: Update frontend (depends on the second job)
