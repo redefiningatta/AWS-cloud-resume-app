@@ -3,7 +3,7 @@ import boto3
 import logging
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('backend-VisitorCount')  # Your DynamoDB table name
+table = dynamodb.Table('cloud-resume-backend-VisitorCount')  # Your DynamoDB table name
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -13,7 +13,7 @@ def lambda_handler(event, context):
         response = table.get_item(Key={'id': 'visitorCount'})
         if 'Item' not in response:
             # Item does not exist, create it
-            table.put_item(Item={'id': 'visitorCount', 'count': 0})
+            table.put_item(Item={'id': 'visitorcount', 'count': 0})
             visitor_count = 0
         else:
             visitor_count = response['Item']['count']
@@ -40,7 +40,7 @@ def lambda_handler(event, context):
             'body': json.dumps({'visitorCount': new_count}),
             'headers': {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'https://iamatta.com'
+                'Access-Control-Allow-Origin': 'https://myresume.iamatta.com'
             }
         }
     except Exception as e:
@@ -50,7 +50,7 @@ def lambda_handler(event, context):
             'body': json.dumps({'error': 'Could not update visitor count'}),
             'headers': {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'https://iamatta.com'
+                'Access-Control-Allow-Origin': 'https://myresume.iamatta.com'
             }
         }
 
