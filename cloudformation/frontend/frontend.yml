@@ -5,6 +5,10 @@ Parameters:
     Type: String
     Description: "Your domain name"
 
+  AcmCertificateArn:
+    Type: String
+    Description: "ACM Certificate ARN for HTTPS"
+
 Resources:
   # S3 Bucket to store static website assets
   S3BucketFrontend:
@@ -16,9 +20,6 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
-      WebsiteConfiguration:
-        IndexDocument: index.html
-        #ErrorDocument: error.html
 
   # Bucket Policy to allow CloudFront to read from the S3 bucket
   S3BucketPolicy:
@@ -40,7 +41,7 @@ Resources:
     Type: "AWS::CloudFront::OriginAccessControl"
     Properties:
       OriginAccessControlConfig:
-        Name: "PortfolioOAC"
+        Name: "Cloud Resume OAC"
         OriginAccessControlOriginType: "s3"
         SigningBehavior: "always"
         SigningProtocol: "sigv4"
@@ -54,8 +55,7 @@ Resources:
         Origins:
           - Id: S3Origin
             DomainName: !GetAtt S3BucketFrontend.DomainName
-            S3OriginConfig:
-              OriginAccessIdentity: '' #!Sub "origin-access-identity/cloudfront/${AWS::AccountId}"
+            S3OriginConfig: {} 
             OriginAccessControlId: !Ref CloudFrontOriginAccessControl
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
@@ -69,7 +69,7 @@ Resources:
           Compress: true
           CachePolicyId: !Ref CachePolicy
         ViewerCertificate:
-          AcmCertificateArn: !Ref AcmCertificate
+          AcmCertificateArn: !Ref AcmCertificateArn
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2021
         Aliases:

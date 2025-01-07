@@ -20,7 +20,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::503561439493:role/aws-cloud-resume-app-gh
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN}}
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Make scripts executable
@@ -35,16 +35,6 @@ jobs:
           CERTIFICATE_REGION: ${{ secrets.CERTIFICATE_REGION }}
           NEW_CERTIFICATE_STACK_NAME: ${{ secrets.NEW_CERTIFICATE_STACK_NAME }}
 
-      - name: Capture ACM Certificate ARN
-        id: capture_certificate_arn
-        run: |
-          CERTIFICATE_ARN=$(aws cloudformation describe-stacks \
-            --stack-name "${{ secrets.NEW_CERTIFICATE_STACK_NAME }}" \
-            --region "${{ secrets.CERTIFICATE_REGION }}" \
-            --query "Stacks[0].Outputs[?OutputKey=='CertificateArn'].OutputValue" \
-            --output text)
-          echo "certificate_arn=$CERTIFICATE_ARN" >> $GITHUB_ENV  # Save ARN as an environment variable
-
   # Job 2: Deploy CloudFormation stacks (depends on the first job)
   deploy_stack:
     runs-on: ubuntu-latest
@@ -56,14 +46,11 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::503561439493:role/aws-cloud-resume-app-gh
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN}}
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Make scripts executable
         run: chmod +x scripts/*.sh
-
-      - name: Check prerequisites
-        run: ./scripts/check_prerequisites.sh
 
       - name: Build and upload Lambda
         run: ./scripts/build_lambda.sh
@@ -72,7 +59,7 @@ jobs:
         run: ./scripts/deploy_cloudformation_stacks.sh
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-          CERTIFICATE_ARN: ${{ env.certificate_arn }}  # Use the environment variable passed from the previous job
+    
 
   # Job 3: Update frontend (depends on the second job)
   update_frontend:
@@ -89,4 +76,4 @@ jobs:
         run: ./scripts/update_frontend.sh
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-          CERTIFICATE_ARN: ${{ env.certificate_arn }}  # Use the environment variable passed from the previous job
+          
